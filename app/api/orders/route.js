@@ -3,10 +3,27 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET all orders
-export async function GET() {
+// GET all orders (with optional user filtering)
+export async function GET(request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const userEmail = searchParams.get('userEmail');
+    
+    let whereClause = {};
+    
+    // If userId is provided, filter by user ID
+    if (userId) {
+      whereClause.userId = parseInt(userId);
+    }
+    
+    // If userEmail is provided, filter by email (fallback)
+    if (userEmail && !userId) {
+      whereClause.email = userEmail;
+    }
+    
     const orders = await prisma.order.findMany({
+      where: whereClause,
       include: {
         items: {
           include: {
@@ -29,7 +46,7 @@ export async function GET() {
 // POST create new order
 export async function POST(request) {
   try {
-    const { customer, email, items, total } = await request.json();
+    const { customer, email, items, total, userId } = await request.json();
     
     // Validate required fields
     if (!customer || !email || !items || !total) {
@@ -43,6 +60,7 @@ export async function POST(request) {
         email,
         total,
         status: 'pending',
+        userId: userId ? parseInt(userId) : null, // Link to user if provided
         items: {
           create: items.map(item => ({
             productId: item.productId,

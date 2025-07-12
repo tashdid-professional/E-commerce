@@ -22,7 +22,8 @@ export default function DashboardPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(`/api/orders?userId=${user.id}`);
+      // Filter orders by both userId and email for maximum compatibility
+      const response = await fetch(`/api/orders?userId=${user.id}&userEmail=${user.email}`);
       if (response.ok) {
         const data = await response.json();
         setOrders(data);
