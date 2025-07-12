@@ -11,52 +11,59 @@ export default function ProductsContent() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || 'All');
   const [sortBy, setSortBy] = useState('name');
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch data on mount and when filters change
+  // Debounced search effect
   useEffect(() => {
-    const handleSearch = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        if (searchTerm) params.append('q', searchTerm);
-        if (selectedCategory !== 'All') params.append('category', selectedCategory);
-        if (priceRange.min) params.append('minPrice', priceRange.min);
-        if (priceRange.max) params.append('maxPrice', priceRange.max);
-        params.append('sortBy', sortBy === 'name' ? 'name' : 'price');
-        params.append('sortOrder', sortBy === 'price-high' ? 'desc' : 'asc');
+    const debounceTimer = setTimeout(() => {
+      const handleSearch = async () => {
+        try {
+          setSearching(true);
+          const params = new URLSearchParams();
+          if (searchTerm) params.append('q', searchTerm);
+          if (selectedCategory !== 'All') params.append('category', selectedCategory);
+          if (priceRange.min) params.append('minPrice', priceRange.min);
+          if (priceRange.max) params.append('maxPrice', priceRange.max);
+          params.append('sortBy', sortBy === 'name' ? 'name' : 'price');
+          params.append('sortOrder', sortBy === 'price-high' ? 'desc' : 'asc');
 
-        const response = await fetch(`/api/products/search?${params}`);
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        console.error('Error searching products:', error);
-      } finally {
-        setLoading(false);
+          const response = await fetch(`/api/products/search?${params}`);
+          const data = await response.json();
+          setProducts(data);
+        } catch (error) {
+          console.error('Error searching products:', error);
+        } finally {
+          setSearching(false);
+        }
+      };
+
+      const fetchProducts = async () => {
+        try {
+          if (!loading) setSearching(true); // Only show searching if not initial load
+          const response = await fetch('/api/products');
+          const data = await response.json();
+          setProducts(data);
+        } catch (error) {
+          console.error('Error fetching products:', error);
+        } finally {
+          setSearching(false);
+          setLoading(false);
+        }
+      };
+
+      if (searchTerm || selectedCategory !== 'All' || priceRange.min || priceRange.max) {
+        handleSearch();
+      } else {
+        fetchProducts();
       }
-    };
+    }, 300); // 300ms debounce
 
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('/api/products');
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (searchTerm || selectedCategory !== 'All' || priceRange.min || priceRange.max) {
-      handleSearch();
-    } else {
-      fetchProducts();
-    }
+    return () => clearTimeout(debounceTimer);
   }, [searchTerm, selectedCategory, priceRange.min, priceRange.max, sortBy]);
 
   // Fetch categories on mount
@@ -149,13 +156,20 @@ export default function ProductsContent() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Search Products
               </label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by name..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by name..."
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {searching && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Category Filter */}
@@ -220,7 +234,7 @@ export default function ProductsContent() {
 
         {/* Products Grid */}
         <div className="lg:w-3/4">
-          {products.length === 0 ? (
+          {products.length === 0 && !searching ? (
             <div className="text-center py-12">
               <p className="text-gray-600 text-lg">No products found.</p>
               <button
@@ -232,10 +246,18 @@ export default function ProductsContent() {
             </div>
           ) : (
             <>
-              <div className="mb-4 text-sm text-gray-600">
-                {products.length} product{products.length !== 1 ? 's' : ''} found
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-sm text-gray-600">
+                  {products.length} product{products.length !== 1 ? 's' : ''} found
+                </span>
+                {searching && (
+                  <span className="text-sm text-blue-600 flex items-center">
+                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600 mr-2"></div>
+                    Searching...
+                  </span>
+                )}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ${searching ? 'opacity-70 transition-opacity' : ''}`}>
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
