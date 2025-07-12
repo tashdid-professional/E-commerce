@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
@@ -15,10 +17,10 @@ export default function Footer() {
           <div>
             <h4 className="text-md font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/" className="text-gray-400 hover:text-white">Home</a></li>
-              <li><a href="/products" className="text-gray-400 hover:text-white">Products</a></li>
-              <li><a href="/categories" className="text-gray-400 hover:text-white">Categories</a></li>
-              <li><a href="/cart" className="text-gray-400 hover:text-white">Shopping Cart</a></li>
+              <li><Link href="/" className="text-gray-400 hover:text-white">Home</Link></li>
+              <li><Link href="/products" className="text-gray-400 hover:text-white">Products</Link></li>
+              <li><Link href="/categories" className="text-gray-400 hover:text-white">Categories</Link></li>
+              <li><Link href="/cart" className="text-gray-400 hover:text-white">Shopping Cart</Link></li>
             </ul>
           </div>
 
@@ -26,9 +28,9 @@ export default function Footer() {
           <div>
             <h4 className="text-md font-semibold mb-4">Categories</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/products?category=Electronics" className="text-gray-400 hover:text-white">Electronics</a></li>
-              <li><a href="/products?category=Accessories" className="text-gray-400 hover:text-white">Accessories</a></li>
-              <li><a href="/products?category=Health" className="text-gray-400 hover:text-white">Health</a></li>
+              <li><Link href="/products?category=Electronics" className="text-gray-400 hover:text-white">Electronics</Link></li>
+              <li><Link href="/products?category=Accessories" className="text-gray-400 hover:text-white">Accessories</Link></li>
+              <li><Link href="/products?category=Health" className="text-gray-400 hover:text-white">Health</Link></li>
             </ul>
           </div>
 

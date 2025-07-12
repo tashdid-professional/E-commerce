@@ -17,40 +17,52 @@ export default function ProductsPage() {
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch data on mount
+  // Fetch data on mount and when filters change
   useEffect(() => {
-    fetchCategories();
+    const handleSearch = async () => {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams();
+        if (searchTerm) params.append('q', searchTerm);
+        if (selectedCategory !== 'All') params.append('category', selectedCategory);
+        if (priceRange.min) params.append('minPrice', priceRange.min);
+        if (priceRange.max) params.append('maxPrice', priceRange.max);
+        params.append('sortBy', sortBy === 'name' ? 'name' : 'price');
+        params.append('sortOrder', sortBy === 'price-high' ? 'desc' : 'asc');
+
+        const response = await fetch(`/api/products/search?${params}`);
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error searching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (searchTerm || selectedCategory !== 'All' || priceRange.min || priceRange.max) {
       handleSearch();
     } else {
       fetchProducts();
     }
-  }, []);
+  }, [searchTerm, selectedCategory, priceRange.min, priceRange.max, sortBy]);
 
-  // Handle search when filters change
+  // Fetch categories on mount
   useEffect(() => {
-    const debounceTimeout = setTimeout(() => {
-      if (searchTerm || selectedCategory !== 'All' || priceRange.min || priceRange.max) {
-        handleSearch();
-      } else {
-        fetchProducts();
-      }
-    }, 300);
-
-    return () => clearTimeout(debounceTimeout);
-  }, [searchTerm, selectedCategory, priceRange, sortBy]);
-
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch('/api/products');
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchCategories();
+  }, []);
 
   const fetchCategories = async () => {
     try {
@@ -59,27 +71,6 @@ export default function ProductsPage() {
       setCategories(data);
     } catch (error) {
       console.error('Error fetching categories:', error);
-    }
-  };
-
-  const handleSearch = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (searchTerm) params.append('q', searchTerm);
-      if (selectedCategory !== 'All') params.append('category', selectedCategory);
-      if (priceRange.min) params.append('minPrice', priceRange.min);
-      if (priceRange.max) params.append('maxPrice', priceRange.max);
-      params.append('sortBy', sortBy === 'name' ? 'name' : 'price');
-      params.append('sortOrder', sortBy === 'price-high' ? 'desc' : 'asc');
-
-      const response = await fetch(`/api/products/search?${params}`);
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error('Error searching products:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
