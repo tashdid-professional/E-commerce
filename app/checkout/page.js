@@ -153,9 +153,8 @@ export default function CheckoutPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Shipping & Payment</h2>
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Customer Information */}
+           
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Customer Information</h3>
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label htmlFor="customer" className="block text-sm font-medium text-gray-700 mb-2">
@@ -180,6 +179,20 @@ export default function CheckoutPage() {
                     id="email"
                     name="email"
                     value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="number" className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="number"
+                    name="number"
+                    value={formData.number || ''}
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -239,58 +252,26 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Payment Information */}
+            {/* Payment Method */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Information</h3>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                    Card Number
-                  </label>
-                  <input
-                    type="text"
-                    id="cardNumber"
-                    name="cardNumber"
-                    value={formData.cardNumber}
-                    onChange={handleInputChange}
-                    placeholder="1234 5678 9012 3456"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700 mb-2">
-                      Expiry Date
-                    </label>
-                    <input
-                      type="text"
-                      id="expiryDate"
-                      name="expiryDate"
-                      value={formData.expiryDate}
-                      onChange={handleInputChange}
-                      placeholder="MM/YY"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="cvv" className="block text-sm font-medium text-gray-700 mb-2">
-                      CVV
-                    </label>
-                    <input
-                      type="text"
-                      id="cvv"
-                      name="cvv"
-                      value={formData.cvv}
-                      onChange={handleInputChange}
-                      placeholder="123"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Method</h3>
+              <div className="flex items-center space-x-3">
+                <input
+                  type="radio"
+                  id="cod"
+                  name="paymentMethod"
+                  value="cod"
+                  checked
+                  readOnly
+                  className="form-radio h-5 w-5 text-blue-600"
+                />
+                <label htmlFor="cod" className="text-gray-800 font-medium">
+                  Cash on Delivery
+                </label>
               </div>
+              <p className="text-sm text-gray-500 mt-2">
+                Pay with cash when your order is delivered.
+              </p>
             </div>
 
             <button
