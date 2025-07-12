@@ -126,10 +126,10 @@ export default function OrderSuccessPage() {
 
       {/* What's Next */}
       <div className="bg-blue-50 rounded-lg p-6 mb-8">
-        <h3 className="font-semibold text-blue-900 mb-2">What's Next?</h3>
+        <h3 className="font-semibold text-blue-900 mb-2">What&apos;s Next?</h3>
         <ul className="text-blue-800 space-y-1 text-sm">
-          <li>• You'll receive a confirmation email shortly</li>
-          <li>• We'll send you shipping updates as your order progresses</li>
+          <li>• You&apos;ll receive a confirmation email shortly</li>
+          <li>• We&apos;ll send you shipping updates as your order progresses</li>
           <li>• Your order will be delivered within 3-5 business days</li>
           <li>• Contact us if you have any questions about your order</li>
         </ul>
