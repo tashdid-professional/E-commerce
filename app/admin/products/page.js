@@ -12,6 +12,7 @@ export default function AdminProducts() {
     price: '',
     originalPrice: '',
     image: '',
+    images: [], // Array for multiple images
     category: '',
     description: '',
     features: '',
@@ -21,6 +22,8 @@ export default function AdminProducts() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreviews, setImagePreviews] = useState([]); // For multiple image previews
+  const [uploadingIndex, setUploadingIndex] = useState(null); // Track which image is uploading
 
   // Fetch products and categories on mount
   useEffect(() => {
@@ -55,16 +58,30 @@ export default function AdminProducts() {
     setForm(f => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = async (e, index = null) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Show preview
-    const reader = new FileReader();
-    reader.onload = (e) => setImagePreview(e.target.result);
-    reader.readAsDataURL(file);
+    // For single image (backwards compatibility)
+    if (index === null) {
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target.result);
+      reader.readAsDataURL(file);
 
-    setUploading(true);
+      setUploading(true);
+    } else {
+      // For multiple images
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const newPreviews = [...imagePreviews];
+        newPreviews[index] = e.target.result;
+        setImagePreviews(newPreviews);
+      };
+      reader.readAsDataURL(file);
+
+      setUploadingIndex(index);
+    }
+
     const formData = new FormData();
     formData.append('file', file);
 
@@ -76,18 +93,45 @@ export default function AdminProducts() {
 
       if (response.ok) {
         const data = await response.json();
-        setForm(f => ({ ...f, image: data.imageUrl }));
+        
+        if (index === null) {
+          // Single image update
+          setForm(f => ({ ...f, image: data.imageUrl }));
+        } else {
+          // Multiple images update
+          setForm(f => {
+            const newImages = [...(f.images || [])];
+            newImages[index] = data.imageUrl;
+            return { ...f, images: newImages };
+          });
+        }
       } else {
         const error = await response.json();
         alert(`Upload failed: ${error.error}`);
-        setImagePreview(null);
+        if (index === null) {
+          setImagePreview(null);
+        } else {
+          const newPreviews = [...imagePreviews];
+          newPreviews[index] = null;
+          setImagePreviews(newPreviews);
+        }
       }
     } catch (error) {
       console.error('Error uploading image:', error);
       alert('Error uploading image');
-      setImagePreview(null);
+      if (index === null) {
+        setImagePreview(null);
+      } else {
+        const newPreviews = [...imagePreviews];
+        newPreviews[index] = null;
+        setImagePreviews(newPreviews);
+      }
     } finally {
-      setUploading(false);
+      if (index === null) {
+        setUploading(false);
+      } else {
+        setUploadingIndex(null);
+      }
     }
   };
 
@@ -101,6 +145,7 @@ export default function AdminProducts() {
         price: parseFloat(form.price),
         originalPrice: form.originalPrice ? parseFloat(form.originalPrice) : undefined,
         features: form.features.split(',').map(f => f.trim()).filter(f => f),
+        images: form.images || [], // Include images array
       };
 
       const url = editId ? `/api/products/${editId}` : '/api/products';
@@ -114,10 +159,11 @@ export default function AdminProducts() {
 
       if (response.ok) {
         await fetchProducts();
-        setForm({ name: '', price: '', originalPrice: '', image: '', category: '', description: '', features: '', inStock: true });
+        setForm({ name: '', price: '', originalPrice: '', image: '', images: [], category: '', description: '', features: '', inStock: true });
         setShowForm(false);
         setEditId(null);
         setImagePreview(null);
+        setImagePreviews([]); // Reset image previews
       } else {
         const error = await response.json();
         alert(`Error: ${error.message}`);
@@ -136,6 +182,7 @@ export default function AdminProducts() {
       price: product.price,
       originalPrice: product.originalPrice || '',
       image: product.image,
+      images: product.images || [], // Load existing images
       category: product.category,
       description: product.description,
       features: product.features.join(', '),
@@ -144,6 +191,7 @@ export default function AdminProducts() {
     setEditId(product.id);
     setShowForm(true);
     setImagePreview(product.image);
+    setImagePreviews(product.images || []); // Load existing image previews
   };
 
   const handleDelete = async (id) => {
@@ -236,6 +284,57 @@ export default function AdminProducts() {
                   className="w-full border p-2 rounded text-sm" 
                 />
               </div>
+            </div>
+
+            {/* Multiple Images Section */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Additional Images (up to 4 total)</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[0, 1, 2, 3].map((index) => (
+                  <div key={index} className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, index)}
+                      className="hidden"
+                      id={`image-${index}`}
+                      disabled={uploadingIndex === index}
+                    />
+                    <label htmlFor={`image-${index}`} className="cursor-pointer">
+                      {(imagePreviews[index] || form.images?.[index]) ? (
+                        <div className="relative">
+                          <img
+                            src={imagePreviews[index] || form.images[index]}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-20 object-cover rounded"
+                          />
+                          {uploadingIndex === index && (
+                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded">
+                              <div className="text-white text-xs">Uploading...</div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="h-20 flex flex-col items-center justify-center text-gray-500">
+                          {uploadingIndex === index ? (
+                            <div className="text-xs">Uploading...</div>
+                          ) : (
+                            <>
+                              <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              </svg>
+                              <span className="text-xs">Image {index + 1}</span>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Image 1 is the main product image. Image 2 will show on hover in product cards.
+              </p>
             </div>
 
             <select name="category" value={form.category} onChange={handleInput} className="border p-2 rounded" required>

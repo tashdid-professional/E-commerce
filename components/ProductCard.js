@@ -15,16 +15,29 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <div className="relative">
+      <div className="relative group">
+        {/* Main Image */}
         <Image
           src={product.image}
           alt={product.name}
           width={300}
           height={300}
-          className="w-full h-48 object-cover"
+          className="w-full h-48 object-cover transition-opacity duration-300"
         />
+        
+        {/* Hover Image (second image if available) */}
+        {product.images && product.images[1] && (
+          <Image
+            src={product.images[1]}
+            alt={`${product.name} - alternate view`}
+            width={300}
+            height={300}
+            className="absolute inset-0 w-full h-48 object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          />
+        )}
+        
         {discount > 0 && (
-          <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
+          <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold z-10">
             -{discount}%
           </span>
         )}

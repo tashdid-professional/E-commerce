@@ -14,6 +14,7 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     fetchProduct();
@@ -69,6 +70,7 @@ export default function ProductPage() {
   }
 
   const discount = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
+  const allImages = [product.image, ...(product.images || [])].filter(Boolean);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -84,15 +86,41 @@ export default function ProductPage() {
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Product Image */}
-        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={600}
-            height={600}
-            className="w-full h-full object-cover"
-          />
+        {/* Product Images Gallery */}
+        <div className="space-y-4">
+          {/* Main Image */}
+          <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+            <Image
+              src={allImages[selectedImageIndex]}
+              alt={product.name}
+              width={600}
+              height={600}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Image Thumbnails */}
+          {allImages.length > 1 && (
+            <div className="grid grid-cols-4 gap-2">
+              {allImages.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImageIndex(index)}
+                  className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-colors ${
+                    selectedImageIndex === index ? 'border-blue-500' : 'border-transparent hover:border-gray-300'
+                  }`}
+                >
+                  <Image
+                    src={image}
+                    alt={`${product.name} view ${index + 1}`}
+                    width={150}
+                    height={150}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Product Info */}

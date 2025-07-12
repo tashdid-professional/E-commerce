@@ -25,7 +25,8 @@ model Product {
   name          String
   price         Float
   originalPrice Float?
-  image         String
+  image         String   // Primary image (backwards compatibility)
+  images        String[] // Array of up to 4 image URLs
   category      Category @relation(fields: [categoryId], references: [id])
   categoryId    Int
   description   String
