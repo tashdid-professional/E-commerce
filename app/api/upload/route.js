@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
 
 export async function POST(request) {
   try {
@@ -22,34 +20,21 @@ export async function POST(request) {
       return NextResponse.json({ error: 'File too large. Maximum size is 5MB.' }, { status: 400 });
     }
 
+    // For Vercel deployment, we'll use a simpler approach with base64 data URLs
+    // This is a temporary solution - for production, use Cloudinary or similar service
+    
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-
-    // Generate unique filename
-    const timestamp = Date.now();
-    const fileExtension = file.name.split('.').pop();
-    const filename = `product-${timestamp}.${fileExtension}`;
-
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    try {
-      await writeFile(join(uploadsDir, filename), buffer);
-    } catch (error) {
-      // Try to create directory if it doesn't exist
-      const { mkdir } = await import('fs/promises');
-      await mkdir(uploadsDir, { recursive: true });
-      await writeFile(join(uploadsDir, filename), buffer);
-    }
-
-    // Return the public URL
-    const imageUrl = `/uploads/${filename}`;
+    const base64 = buffer.toString('base64');
+    const mimeType = file.type;
+    const dataUrl = `data:${mimeType};base64,${base64}`;
     
     return NextResponse.json({ 
-      message: 'File uploaded successfully',
-      imageUrl 
+      message: 'File processed successfully',
+      imageUrl: dataUrl
     });
   } catch (error) {
-    console.error('Error uploading file:', error);
-    return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
+    console.error('Error processing file:', error);
+    return NextResponse.json({ error: 'Failed to process file' }, { status: 500 });
   }
 }
