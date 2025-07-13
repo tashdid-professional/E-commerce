@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request, { params }) {
-  const { dimensions } = params;
+  const { dimensions } = await params;
   const [width, height] = dimensions.split('x').map(Number);
   
   // Create a simple SVG placeholder

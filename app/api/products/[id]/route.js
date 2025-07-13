@@ -3,9 +3,9 @@ import { getProductById, updateProduct, deleteProduct } from '../../../../lib/db
 
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const product = await getProductById(id);
-    
+
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const productData = await request.json();
     const product = await updateProduct(id, productData);
     return NextResponse.json(product);
@@ -29,7 +29,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await deleteProduct(id);
     return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error) {

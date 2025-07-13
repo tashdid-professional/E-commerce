@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
 const prisma = new PrismaClient();
 
@@ -30,6 +31,15 @@ export async function POST(request) {
       process.env.JWT_SECRET || 'your-super-secret-jwt-key-for-ecommerce-app-2024',
       { expiresIn: '24h' }
     );
+
+    // Set token as httpOnly cookie
+    const cookieStore = await cookies();
+    cookieStore.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
 
     // Return user data (without password) and token
     const { password: _, ...userWithoutPassword } = user;

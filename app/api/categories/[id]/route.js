@@ -3,7 +3,7 @@ import { updateCategory, deleteCategory } from '../../../../lib/db';
 
 export async function PUT(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const categoryData = await request.json();
     const category = await updateCategory(id, categoryData);
     return NextResponse.json(category);
@@ -14,7 +14,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await deleteCategory(id);
     return NextResponse.json({ message: 'Category deleted successfully' });
   } catch (error) {

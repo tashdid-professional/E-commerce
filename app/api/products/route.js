@@ -4,7 +4,12 @@ import { getProducts, createProduct } from '../../../lib/db';
 export async function GET() {
   try {
     const products = await getProducts();
-    return NextResponse.json(products);
+    const response = NextResponse.json(products);
+    
+    // Add caching headers
+    response.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+    
+    return response;
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

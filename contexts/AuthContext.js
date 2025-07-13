@@ -2,7 +2,17 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext();
+const AuthContext = createContext({
+  user: null,
+  loading: true,
+  login: () => {},
+  register: () => {},
+  logout: () => {},
+  isAdmin: () => false,
+  getAuthHeader: () => ({})
+});
+
+export { AuthContext }; // Export the context
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -77,10 +87,20 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      // Call logout API to clear server-side cookie
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      // Clear client-side data regardless of API call result
+      setUser(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   };
 
   const isAdmin = () => {

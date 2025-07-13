@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '../../../contexts/CartContext';
+import ReviewForm from '../../../components/ReviewForm';
+import ReviewsList from '../../../components/ReviewsList';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -143,7 +145,7 @@ export default function ProductPage() {
                 ))}
               </div>
               <span className="text-sm text-gray-600 ml-2">
-                {product.rating} ({product.reviews} reviews)
+                {product.rating ? product.rating.toFixed(1) : '0.0'} ({product.reviews || 0} reviews)
               </span>
             </div>
           </div>
@@ -267,31 +269,44 @@ export default function ProductPage() {
           )}
 
           {activeTab === 'reviews' && (
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Customer Reviews</h3>
+            <div className="space-y-8">
+              {/* Reviews Statistics */}
               <div className="bg-gray-50 p-6 rounded-lg">
                 <div className="flex items-center mb-4">
-                  <span className="text-3xl font-bold text-gray-900">{product.rating}</span>
+                  <span className="text-3xl font-bold text-gray-900">
+                    {product.rating ? product.rating.toFixed(1) : '0.0'}
+                  </span>
                   <div className="ml-4">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <svg
                           key={i}
-                          className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                          className={`w-5 h-5 ${i < Math.floor(product.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                           viewBox="0 0 20 20"
                         >
                           <path d="M10 15l-5.878 3.09 1.123-6.545L0 6.91l6.564-.955L10 0l2.436 5.955L20 6.91l-5.245 4.635L15.878 18z"/>
                         </svg>
                       ))}
                     </div>
-                    <span className="text-sm text-gray-600">Based on {product.reviews} reviews</span>
+                    <span className="text-sm text-gray-600">Based on {product.reviews || 0} reviews</span>
                   </div>
                 </div>
-                <p className="text-gray-700">
-                  Customer reviews are not implemented in this demo. In a real application, 
-                  you would fetch and display actual customer reviews here.
-                </p>
               </div>
+
+              {/* Review Form */}
+              <ReviewForm 
+                productId={product.id} 
+                onReviewSubmitted={() => {
+                  // Refresh product data to get updated reviews
+                  fetchProduct();
+                }}
+              />
+
+              {/* Reviews List */}
+              <ReviewsList 
+                productId={product.id} 
+                reviews={product.reviewsList || []}
+              />
             </div>
           )}
         </div>

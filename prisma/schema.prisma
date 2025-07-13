@@ -18,6 +18,7 @@ model User {
   role     String @default("user") // user, admin
   createdAt DateTime @default(now())
   orders   Order[]
+  reviews  Review[]
 }
 
 model Product {
@@ -31,10 +32,11 @@ model Product {
   categoryId    Int
   description   String
   features      String[] @db.Text
-  rating        Float    @default(5)
+  rating        Float    @default(0)
   reviews       Int      @default(0)
   inStock       Boolean  @default(true)
   orderItems    OrderItem[]
+  productReviews Review[] @relation("ProductReviews")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -66,4 +68,19 @@ model OrderItem {
   productId Int
   quantity  Int
   price     Float
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int      // 1-5 stars
+  comment   String?  // Optional comment
+  approved  Boolean  @default(false) // Admin approval required
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  product   Product  @relation("ProductReviews", fields: [productId], references: [id])
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId]) // One review per user per product
 }
