@@ -6,6 +6,12 @@ import { useAuth } from '../contexts/AuthContext';
 export default function ReviewForm({ productId, onReviewSubmitted }) {
   const auth = useAuth();
   
+  // All hooks must be called before any conditional returns
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [hoveredRating, setHoveredRating] = useState(0);
+  
   // Defensive check for auth context
   if (!auth) {
     return (
@@ -16,10 +22,6 @@ export default function ReviewForm({ productId, onReviewSubmitted }) {
   }
 
   const { user } = auth;
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [hoveredRating, setHoveredRating] = useState(0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
