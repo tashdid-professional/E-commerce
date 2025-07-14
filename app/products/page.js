@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import ProductsContent from './ProductsContent';
+import { getProducts, getCategories } from '../../lib/db';
 
 function ProductsLoading() {
   return (
@@ -12,10 +13,20 @@ function ProductsLoading() {
   );
 }
 
-export default function ProductsPage() {
+export default async function ProductsPage({ searchParams }) {
+  // Fetch data on server side
+  const [products, categories] = await Promise.all([
+    getProducts(),
+    getCategories()
+  ]);
+
   return (
     <Suspense fallback={<ProductsLoading />}>
-      <ProductsContent />
+      <ProductsContent 
+        initialProducts={products} 
+        initialCategories={categories}
+        searchParams={searchParams}
+      />
     </Suspense>
   );
 }

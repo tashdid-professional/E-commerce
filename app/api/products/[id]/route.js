@@ -10,7 +10,12 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
     
-    return NextResponse.json(product);
+    const response = NextResponse.json(product);
+    
+    // Add caching headers for individual products
+    response.headers.set('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    
+    return response;
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

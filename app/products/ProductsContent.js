@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProductCard from '../../components/ProductCard';
 
-export default function ProductsContent() {
-  const searchParams = useSearchParams();
-  const categoryParam = searchParams.get('category');
+export default function ProductsContent({ 
+  initialProducts = [], 
+  initialCategories = [], 
+  searchParams 
+}) {
+  const categoryParam = searchParams?.category;
   
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState(initialProducts);
+  const [categories, setCategories] = useState(initialCategories);
+  const [loading, setLoading] = useState(false); // No initial loading since we have server data
   const [searching, setSearching] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || 'All');
   const [sortBy, setSortBy] = useState('name');
@@ -42,50 +45,40 @@ export default function ProductsContent() {
         }
       };
 
-      const fetchProducts = async () => {
-        try {
-          if (!loading) setSearching(true); // Only show searching if not initial load
-          const response = await fetch('/api/products');
-          const data = await response.json();
-          setProducts(data);
-        } catch (error) {
-          console.error('Error fetching products:', error);
-        } finally {
-          setSearching(false);
-          setLoading(false);
-        }
-      };
-
+      // Only search if there are active filters, otherwise use initial server data
       if (searchTerm || selectedCategory !== 'All' || priceRange.min || priceRange.max) {
         handleSearch();
       } else {
-        fetchProducts();
+        // Reset to initial server data when no filters
+        setProducts(initialProducts);
+        setSearching(false);
       }
     }, 300); // 300ms debounce
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, selectedCategory, priceRange.min, priceRange.max, sortBy]);
+  }, [searchTerm, selectedCategory, priceRange.min, priceRange.max, sortBy, initialProducts]);
 
-  // Fetch categories on mount
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  // No need to fetch categories since we have them from server
+  // useEffect(() => {
+  //   fetchCategories();
+  // }, []);
 
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch('/api/categories');
-      const data = await response.json();
-      setCategories(data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
+  // const fetchCategories = async () => {
+  //   try {
+  //     const response = await fetch('/api/categories');
+  //     const data = await response.json();
+  //     setCategories(data);
+  //   } catch (error) {
+  //     console.error('Error fetching categories:', error);
+  //   }
+  // };
 
   const resetFilters = () => {
     setSearchTerm('');
     setSelectedCategory('All');
     setPriceRange({ min: '', max: '' });
     setSortBy('name');
+    setProducts(initialProducts); // Reset to server data immediately
   };
 
   const getActiveFiltersCount = () => {
