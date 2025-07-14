@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getProducts, createProduct } from '../../../lib/db';
+import { revalidatePath } from 'next/cache';
 
 export async function GET() {
   try {
@@ -20,6 +21,11 @@ export async function POST(request) {
     const productData = await request.json();
     console.log('Received product data:', productData);
     const product = await createProduct(productData);
+    
+    // Revalidate pages that show products
+    revalidatePath('/');
+    revalidatePath('/products');
+    
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
     console.error('Error creating product:', error);

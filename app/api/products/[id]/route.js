@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getProductById, updateProduct, deleteProduct } from '../../../../lib/db';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(request, { params }) {
   try {
@@ -26,6 +27,12 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const productData = await request.json();
     const product = await updateProduct(id, productData);
+    
+    // Revalidate pages that show this product
+    revalidatePath('/');
+    revalidatePath('/products');
+    revalidatePath(`/products/${id}`);
+    
     return NextResponse.json(product);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -36,6 +43,11 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
     await deleteProduct(id);
+    
+    // Revalidate pages when product is deleted
+    revalidatePath('/');
+    revalidatePath('/products');
+    
     return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -3,6 +3,9 @@ import Link from "next/link";
 import ProductCard from "../components/ProductCard";
 import { getFeaturedProducts } from "../lib/db";
 
+// Enable ISR - revalidate every 300 seconds (5 minutes)
+export const revalidate = 300;
+
 export default async function Home() {
   const featuredProducts = await getFeaturedProducts();
 
