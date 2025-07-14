@@ -53,15 +53,19 @@ export default function Header() {
           {/* Cart, User Menu, and Mobile Menu */}
           <div className="flex items-center space-x-4">
             {/* Cart Icon */}
-            <Link href="/cart" className="relative">
-              <svg className="w-6 h-6 text-gray-700 hover:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13v6a2 2 0 002 2h6a2 2 0 002-2v-6" />
+            <Link href="/cart" className="relative group">
+              <svg className="w-6 h-6 text-gray-700 hover:text-blue-600 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l-1 7a2 2 0 01-2 2H8a2 2 0 01-2-2L5 9zM9 11v2m6-2v2" />
               </svg>
               {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {totalItems}
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse font-semibold">
+                  {totalItems > 99 ? '99+' : totalItems}
                 </span>
               )}
+              {/* Tooltip */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap pointer-events-none">
+                {totalItems === 0 ? 'Cart is empty' : `${totalItems} item${totalItems > 1 ? 's' : ''} in cart`}
+              </div>
             </Link>
 
             {/* User Menu */}
