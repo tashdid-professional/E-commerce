@@ -53,12 +53,16 @@ function ProductCard({ product }) {
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-500">{product.category}</span>
-          <div className="flex items-center">
-            <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-              <path d="M10 15l-5.878 3.09 1.123-6.545L0 6.91l6.564-.955L10 0l2.436 5.955L20 6.91l-5.245 4.635L15.878 18z"/>
-            </svg>
-            <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
-          </div>
+          {(product.rating && product.rating > 0) ? (
+            <div className="flex items-center">
+              <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                <path d="M10 15l-5.878 3.09 1.123-6.545L0 6.91l6.564-.955L10 0l2.436 5.955L20 6.91l-5.245 4.635L15.878 18z"/>
+              </svg>
+              <span className="text-sm text-gray-600 ml-1">{product.rating.toFixed(1)}</span>
+            </div>
+          ) : (
+            <span className="text-sm text-gray-500">No reviews</span>
+          )}
         </div>
         
         <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-1">

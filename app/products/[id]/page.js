@@ -133,20 +133,26 @@ export default function ProductPage() {
             
             {/* Rating */}
             <div className="flex items-center mt-4">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M10 15l-5.878 3.09 1.123-6.545L0 6.91l6.564-.955L10 0l2.436 5.955L20 6.91l-5.245 4.635L15.878 18z"/>
-                  </svg>
-                ))}
-              </div>
-              <span className="text-sm text-gray-600 ml-2">
-                {product.rating ? product.rating.toFixed(1) : '0.0'} ({product.reviews || 0} reviews)
-              </span>
+              {(product.rating && product.rating > 0) ? (
+                <>
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L0 6.91l6.564-.955L10 0l2.436 5.955L20 6.91l-5.245 4.635L15.878 18z"/>
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-600 ml-2">
+                    {product.rating.toFixed(1)} ({product.reviews || 0} reviews)
+                  </span>
+                </>
+              ) : (
+                <span className="text-sm text-gray-500">No reviews yet</span>
+              )}
             </div>
           </div>
 
@@ -272,25 +278,39 @@ export default function ProductPage() {
             <div className="space-y-8">
               {/* Reviews Statistics */}
               <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="flex items-center mb-4">
-                  <span className="text-3xl font-bold text-gray-900">
-                    {product.rating ? product.rating.toFixed(1) : '0.0'}
-                  </span>
-                  <div className="ml-4">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`w-5 h-5 ${i < Math.floor(product.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M10 15l-5.878 3.09 1.123-6.545L0 6.91l6.564-.955L10 0l2.436 5.955L20 6.91l-5.245 4.635L15.878 18z"/>
-                        </svg>
-                      ))}
+                {(product.rating && product.rating > 0) ? (
+                  <div className="flex items-center mb-4">
+                    <span className="text-3xl font-bold text-gray-900">
+                      {product.rating.toFixed(1)}
+                    </span>
+                    <div className="ml-4">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <svg
+                            key={i}
+                            className={`w-5 h-5 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M10 15l-5.878 3.09 1.123-6.545L0 6.91l6.564-.955L10 0l2.436 5.955L20 6.91l-5.245 4.635L15.878 18z"/>
+                          </svg>
+                        ))}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Based on {product.reviews || 0} reviews
+                      </p>
                     </div>
-                    <span className="text-sm text-gray-600">Based on {product.reviews || 0} reviews</span>
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 mb-2">
+                      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M7 8h10m0 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2m10 0v10a2 2 0 01-2 2H9a2 2 0 01-2-2V8m10 0H7"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No reviews yet</h3>
+                    <p className="text-gray-600">Be the first to review this product!</p>
+                  </div>
+                )}
               </div>
 
               {/* Review Form */}
