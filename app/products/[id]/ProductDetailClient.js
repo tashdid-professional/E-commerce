@@ -219,7 +219,7 @@ export default function ProductDetailClient({ initialProduct }) {
               
               <button
                 onClick={handleAddToCart}
-                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium"
+                className="flex-1 bg-blue-600 text-white lg:px-6 px-2 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium lg:text-base text-xs"
               >
                 Add to Cart
               </button>
@@ -319,6 +319,11 @@ export default function ProductDetailClient({ initialProduct }) {
                 )}
               </div>
 
+              {/* Reviews List */}
+              <ReviewsList 
+                productId={product.id} 
+                reviews={product.reviewsList || []}
+              />
               {/* Review Form */}
               <ReviewForm 
                 productId={product.id} 
@@ -328,11 +333,6 @@ export default function ProductDetailClient({ initialProduct }) {
                 }}
               />
 
-              {/* Reviews List */}
-              <ReviewsList 
-                productId={product.id} 
-                reviews={product.reviewsList || []}
-              />
             </div>
           )}
         </div>
